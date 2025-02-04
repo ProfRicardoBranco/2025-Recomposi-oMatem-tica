@@ -1,74 +1,127 @@
-// Função para criar a Tábua de Pitágoras
-function criarTabua() {
-  const tabela = document.getElementById("tabua");
-  const tamanho = 10; // Tamanho da tabela (10x10)
-
-  // Cria a primeira linha (cabeçalho)
-  const cabecalho = document.createElement("tr");
-  cabecalho.appendChild(document.createElement("td")); // Célula vazia no canto superior esquerdo
-  for (let i = 1; i <= tamanho; i++) {
-    const th = document.createElement("th");
-    th.textContent = i;
-    cabecalho.appendChild(th);
-  }
-  tabela.appendChild(cabecalho);
-
-  // Cria as linhas da tabela
-  for (let i = 1; i <= tamanho; i++) {
-    const tr = document.createElement("tr");
-    const th = document.createElement("th");
-    th.textContent = i;
-    tr.appendChild(th);
-
-    for (let j = 1; j <= tamanho; j++) {
-      const td = document.createElement("td");
-      td.textContent = i * j;
-      tr.appendChild(td);
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tábua de Pitágoras</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
     }
-    tabela.appendChild(tr);
-  }
-}
 
-// Função para limpar realces anteriores
-function limparRealces() {
-  const celulas = document.querySelectorAll("#tabua td");
-  celulas.forEach((celula) => {
-    celula.classList.remove("highlight-row", "highlight-col", "highlight-result");
-  });
-}
-
-// Função para realçar linha, coluna e resultado
-function realcarCelula(event) {
-  const celula = event.target;
-  if (celula.tagName !== "TD") return; // Ignora cliques fora das células
-
-  limparRealces(); // Limpa realces anteriores
-
-  const linha = celula.parentElement;
-  const colunaIndex = Array.from(linha.children).indexOf(celula);
-
-  // Realça a linha
-  Array.from(linha.children).forEach((celulaLinha) => {
-    if (celulaLinha.tagName === "TD") {
-      celulaLinha.classList.add("highlight-row");
+    h1 {
+      color: #333;
     }
-  });
 
-  // Realça a coluna
-  const linhas = document.querySelectorAll("#tabua tr");
-  linhas.forEach((linha) => {
-    const celulaColuna = linha.children[colunaIndex];
-    if (celulaColuna && celulaColuna.tagName === "TD") {
-      celulaColuna.classList.add("highlight-col");
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
     }
-  });
 
-  // Realça o resultado (célula clicada)
-  celula.classList.add("highlight-result");
-}
+    td {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
 
-// Inicialização
-document.addEventListener("DOMContentLoaded", () => {
-  criarTabua();
-  document.getElementById("tabua").addEventListener("click", realcarCelula);
-});
+    td.highlight-row {
+      background-color: #a8d8ff; /* Azul claro para a linha */
+    }
+
+    td.highlight-col {
+      background-color: #ffcccb; /* Vermelho claro para a coluna */
+    }
+
+    td.highlight-result {
+      background-color: #90ee90; /* Verde claro para o resultado */
+    }
+  </style>
+</head>
+<body>
+  <h1>Tábua de Pitágoras</h1>
+  <table id="tabua">
+    <!-- As linhas e colunas serão geradas dinamicamente pelo JavaScript -->
+  </table>
+
+  <script>
+    // Função para criar a Tábua de Pitágoras
+    function criarTabua() {
+      const tabela = document.getElementById("tabua");
+      const tamanho = 10; // Tamanho da tabela (10x10)
+
+      // Cria a primeira linha (cabeçalho)
+      const cabecalho = document.createElement("tr");
+      cabecalho.appendChild(document.createElement("td")); // Célula vazia no canto superior esquerdo
+      for (let i = 1; i <= tamanho; i++) {
+        const th = document.createElement("th");
+        th.textContent = i;
+        cabecalho.appendChild(th);
+      }
+      tabela.appendChild(cabecalho);
+
+      // Cria as linhas da tabela
+      for (let i = 1; i <= tamanho; i++) {
+        const tr = document.createElement("tr");
+        const th = document.createElement("th");
+        th.textContent = i;
+        tr.appendChild(th);
+
+        for (let j = 1; j <= tamanho; j++) {
+          const td = document.createElement("td");
+          td.textContent = i * j;
+          tr.appendChild(td);
+        }
+        tabela.appendChild(tr);
+      }
+    }
+
+    // Função para limpar realces anteriores
+    function limparRealces() {
+      const celulas = document.querySelectorAll("#tabua td");
+      celulas.forEach((celula) => {
+        celula.classList.remove("highlight-row", "highlight-col", "highlight-result");
+      });
+    }
+
+    // Função para realçar linha, coluna e resultado
+    function realcarCelula(event) {
+      const celula = event.target;
+      if (celula.tagName !== "TD") return; // Ignora cliques fora das células
+
+      limparRealces(); // Limpa realces anteriores
+
+      const linha = celula.parentElement;
+      const colunaIndex = Array.from(linha.children).indexOf(celula);
+
+      // Realça a linha
+      Array.from(linha.children).forEach((celulaLinha) => {
+        if (celulaLinha.tagName === "TD") {
+          celulaLinha.classList.add("highlight-row");
+        }
+      });
+
+      // Realça a coluna
+      const linhas = document.querySelectorAll("#tabua tr");
+      linhas.forEach((linha) => {
+        const celulaColuna = linha.children[colunaIndex];
+        if (celulaColuna && celulaColuna.tagName === "TD") {
+          celulaColuna.classList.add("highlight-col");
+        }
+      });
+
+      // Realça o resultado (célula clicada)
+      celula.classList.add("highlight-result");
+    }
+
+    // Inicialização
+    document.addEventListener("DOMContentLoaded", () => {
+      criarTabua();
+      document.getElementById("tabua").addEventListener("click", realcarCelula);
+    });
+  </script>
+</body>
+</html>
