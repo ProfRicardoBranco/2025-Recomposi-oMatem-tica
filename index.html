@@ -3,58 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tábua de Pitágoras</title>
+  <title>Recomposição - Matemática</title>
   <style>
+    /* Estilos gerais */
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 20px;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #333;
     }
 
-    h1 {
-      color: #333;
+    /* Seção inicial */
+    .hero {
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin: 0;
+      font-weight: bold;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin: 20px 0 0;
+      animation: fadeIn 3s ease-in-out;
+    }
+
+    /* Animação de fadeIn */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Estilos da tabela */
+    h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin: 40px 0 20px;
+      color: #2575fc;
     }
 
     table {
       margin: 20px auto;
       border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
     th, td {
       width: 40px;
       height: 40px;
       text-align: center;
-      border: 1px solid #ccc; /* Borda em todas as células */
+      border: 1px solid #ccc;
       cursor: pointer;
     }
 
     th {
-      background-color: #f0f0f0; /* Cor de fundo para os rótulos */
+      background-color: #f0f0f0;
       font-weight: bold;
     }
 
     td.highlight-row {
-      background-color: #a8d8ff; /* Azul claro para a linha */
+      background-color: #a8d8ff;
     }
 
     td.highlight-col {
-      background-color: #ffcccb; /* Vermelho claro para a coluna */
+      background-color: #ffcccb;
     }
 
     td.highlight-result {
-      background-color: #90ee90; /* Verde claro para o resultado */
+      background-color: #90ee90;
     }
   </style>
 </head>
 <body>
-  <h1>Tábua de Pitágoras</h1>
+  <!-- Seção inicial -->
+  <section class="hero">
+    <h1>Recomposição - Matemática</h1>
+    <p>Aula 1</p>
+  </section>
+
+  <!-- Tabela de Pitágoras -->
+  <h2>Tábua de Pitágoras</h2>
   <table id="tabua">
     <!-- As linhas e colunas serão geradas dinamicamente pelo JavaScript -->
   </table>
 
   <script>
-    let linhaSelecionada = null;
-    let colunaSelecionada = null;
+    let linhaSelecionada = false;
+    let colunaSelecionada = false;
+    let linhaIndex = null;
+    let colunaIndex = null;
 
     // Função para criar a Tábua de Pitágoras
     function criarTabua() {
@@ -100,24 +149,47 @@
       const celula = event.target;
       if (celula.tagName !== "TH" && celula.tagName !== "TD") return; // Ignora cliques fora das células
 
+      if (linhaSelecionada && colunaSelecionada) {
+        // Se ambos já estiverem selecionados, limpa tudo e reseta
+        limparRealces();
+        linhaSelecionada = false;
+        colunaSelecionada = false;
+        linhaIndex = null;
+        colunaIndex = null;
+      }
+
       if (celula.parentElement.tagName === "TR" && celula.tagName === "TH" && celula !== celula.parentElement.children[0]) {
         // Clicou em um rótulo de coluna (cabeçalho superior)
-        colunaSelecionada = Array.from(celula.parentElement.children).indexOf(celula);
+        if (colunaSelecionada) {
+          // Se já havia uma coluna selecionada, limpa o realce anterior
+          limparRealces();
+          linhaSelecionada = false;
+          linhaIndex = null;
+        }
+        colunaSelecionada = true;
+        colunaIndex = Array.from(celula.parentElement.children).indexOf(celula);
 
         // Realça a coluna
         const linhas = document.querySelectorAll("#tabua tr");
         linhas.forEach((linha) => {
-          const celulaColuna = linha.children[colunaSelecionada];
+          const celulaColuna = linha.children[colunaIndex];
           if (celulaColuna && celulaColuna.tagName === "TD") {
             celulaColuna.classList.add("highlight-col");
           }
         });
       } else if (celula.tagName === "TH" && celula === celula.parentElement.children[0]) {
         // Clicou em um rótulo de linha (primeira célula da linha)
-        linhaSelecionada = celula.parentElement;
+        if (linhaSelecionada) {
+          // Se já havia uma linha selecionada, limpa o realce anterior
+          limparRealces();
+          colunaSelecionada = false;
+          colunaIndex = null;
+        }
+        linhaSelecionada = true;
+        linhaIndex = Array.from(celula.parentElement.parentElement.children).indexOf(celula.parentElement);
 
         // Realça a linha
-        Array.from(linhaSelecionada.children).forEach((celulaLinha) => {
+        Array.from(celula.parentElement.children).forEach((celulaLinha) => {
           if (celulaLinha.tagName === "TD") {
             celulaLinha.classList.add("highlight-row");
           }
@@ -125,16 +197,9 @@
       }
 
       // Se linha e coluna estiverem selecionadas, realça o resultado
-      if (linhaSelecionada && colunaSelecionada !== null) {
-        const resultado = linhaSelecionada.children[colunaSelecionada];
+      if (linhaSelecionada && colunaSelecionada) {
+        const resultado = document.querySelectorAll("#tabua tr")[linhaIndex].children[colunaIndex];
         resultado.classList.add("highlight-result");
-
-        // Limpa os realces anteriores após um breve delay (para exibir o resultado)
-        setTimeout(() => {
-          limparRealces();
-          linhaSelecionada = null;
-          colunaSelecionada = null;
-        }, 3000); // 1 segundo de delay
       }
     }
 
