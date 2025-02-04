@@ -20,12 +20,17 @@
       border-collapse: collapse;
     }
 
-    td {
+    th, td {
       width: 40px;
       height: 40px;
       text-align: center;
-      border: 1px solid #ccc;
+      border: 1px solid #ccc; /* Borda em todas as células */
       cursor: pointer;
+    }
+
+    th {
+      background-color: #f0f0f0; /* Cor de fundo para os rótulos */
+      font-weight: bold;
     }
 
     td.highlight-row {
@@ -48,6 +53,9 @@
   </table>
 
   <script>
+    let linhaSelecionada = null;
+    let colunaSelecionada = null;
+
     // Função para criar a Tábua de Pitágoras
     function criarTabua() {
       const tabela = document.getElementById("tabua");
@@ -55,7 +63,7 @@
 
       // Cria a primeira linha (cabeçalho)
       const cabecalho = document.createElement("tr");
-      cabecalho.appendChild(document.createElement("td")); // Célula vazia no canto superior esquerdo
+      cabecalho.appendChild(document.createElement("th")); // Célula vazia no canto superior esquerdo
       for (let i = 1; i <= tamanho; i++) {
         const th = document.createElement("th");
         th.textContent = i;
@@ -81,46 +89,59 @@
 
     // Função para limpar realces anteriores
     function limparRealces() {
-      const celulas = document.querySelectorAll("#tabua td");
+      const celulas = document.querySelectorAll("#tabua td, #tabua th");
       celulas.forEach((celula) => {
         celula.classList.remove("highlight-row", "highlight-col", "highlight-result");
       });
     }
 
-    // Função para realçar linha, coluna e resultado
-    function realcarCelula(event) {
+    // Função para realçar linha ou coluna
+    function realcarLinhaOuColuna(event) {
       const celula = event.target;
-      if (celula.tagName !== "TD") return; // Ignora cliques fora das células
+      if (celula.tagName !== "TH" && celula.tagName !== "TD") return; // Ignora cliques fora das células
 
-      limparRealces(); // Limpa realces anteriores
+      if (celula.parentElement.tagName === "TR" && celula.tagName === "TH" && celula !== celula.parentElement.children[0]) {
+        // Clicou em um rótulo de coluna (cabeçalho superior)
+        colunaSelecionada = Array.from(celula.parentElement.children).indexOf(celula);
 
-      const linha = celula.parentElement;
-      const colunaIndex = Array.from(linha.children).indexOf(celula);
+        // Realça a coluna
+        const linhas = document.querySelectorAll("#tabua tr");
+        linhas.forEach((linha) => {
+          const celulaColuna = linha.children[colunaSelecionada];
+          if (celulaColuna && celulaColuna.tagName === "TD") {
+            celulaColuna.classList.add("highlight-col");
+          }
+        });
+      } else if (celula.tagName === "TH" && celula === celula.parentElement.children[0]) {
+        // Clicou em um rótulo de linha (primeira célula da linha)
+        linhaSelecionada = celula.parentElement;
 
-      // Realça a linha
-      Array.from(linha.children).forEach((celulaLinha) => {
-        if (celulaLinha.tagName === "TD") {
-          celulaLinha.classList.add("highlight-row");
-        }
-      });
+        // Realça a linha
+        Array.from(linhaSelecionada.children).forEach((celulaLinha) => {
+          if (celulaLinha.tagName === "TD") {
+            celulaLinha.classList.add("highlight-row");
+          }
+        });
+      }
 
-      // Realça a coluna
-      const linhas = document.querySelectorAll("#tabua tr");
-      linhas.forEach((linha) => {
-        const celulaColuna = linha.children[colunaIndex];
-        if (celulaColuna && celulaColuna.tagName === "TD") {
-          celulaColuna.classList.add("highlight-col");
-        }
-      });
+      // Se linha e coluna estiverem selecionadas, realça o resultado
+      if (linhaSelecionada && colunaSelecionada !== null) {
+        const resultado = linhaSelecionada.children[colunaSelecionada];
+        resultado.classList.add("highlight-result");
 
-      // Realça o resultado (célula clicada)
-      celula.classList.add("highlight-result");
+        // Limpa os realces anteriores após um breve delay (para exibir o resultado)
+        setTimeout(() => {
+          limparRealces();
+          linhaSelecionada = null;
+          colunaSelecionada = null;
+        }, 3000); // 1 segundo de delay
+      }
     }
 
     // Inicialização
     document.addEventListener("DOMContentLoaded", () => {
       criarTabua();
-      document.getElementById("tabua").addEventListener("click", realcarCelula);
+      document.getElementById("tabua").addEventListener("click", realcarLinhaOuColuna);
     });
   </script>
 </body>
